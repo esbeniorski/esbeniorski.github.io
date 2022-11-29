@@ -1,0 +1,31 @@
+body {
+	background: linear-gradient(to bottom right, #960 0%, #a33 60%, #808 100%) no-repeat fixed;
+}
+
+#main {
+	left: 0;
+	right: 0;
+	margin: 50px auto auto auto;
+	border: solid black 1px;
+	border-radius: 10px;
+	padding: 20px;
+	width: 80vw;
+	height: 80vh;
+}
+
+.karta {
+	margin: 2px;
+	border: solid black 1px;
+	border-radius: 2px;
+	padding-top: 15px;
+	background-color: white;
+	width: 48px;
+	height: 53px;
+	display: inline-block;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.zakr {
+	background-image: url("back.png");
+}

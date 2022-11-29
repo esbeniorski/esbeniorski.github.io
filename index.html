@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blackjack</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="ikona.ico" />
+</head>
+<body>
+    <div id="main">
+        <p>Stan konta: $<span id="stankonta"></span></p>
+        <p>Stawka: <span id="stawka"></span></p>
+        <p>Karty krupiera:</p>
+        <table>
+            <tbody id="kartykrupiera">
+                <tr>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Karty gracza:</p>
+        <table>
+            <tbody id="kartygracza">
+                <tr>
+                    <td id="wskaznik">►</td>
+                </tr>
+            </tbody>
+        </table>
+        <p id="dialog"></p>
+        <div id="przyciski">
+            <button id="hitbutton" onclick="graHit()" disabled>Hit</button>
+            <button id="standbutton" onclick="graStand()" disabled>Stand</button>
+            <button id="doubledownbutton" onclick="graDoubleDown()" disabled>Double down</button>
+            <button id="insurancebutton" onclick="graInsurance()" disabled>Insurance</button>
+            <button id="splitbutton" onclick="graSplit()" disabled>Split</button>
+            <br/>
+            <form action="#">
+                <label style="display: none;" for="stawkainput">Stawka:</label><input id="stawkainput"/>
+                <button id="postawbutton" onclick="postaw()">Nowa gra</button>
+            </form>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <audio id="muzyka" autoplay></audio>
+    <div id="odliczanie"></div>
+</body>
+</html>
