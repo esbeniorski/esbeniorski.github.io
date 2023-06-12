@@ -53,7 +53,7 @@ function dajKarte(kto, zakr, reka) {
 			break;
 	}
 	const par = document.createElement("td");
-	par.classList.add("karta");
+	par.classList.add("karta", "spadanie");
 	if (!zakr) {
 		par.appendChild(document.createTextNode(["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"][wybrana.waga]));
 		par.appendChild(document.createElement("br"));
@@ -65,6 +65,9 @@ function dajKarte(kto, zakr, reka) {
 	}
 	document.getElementById({"krupier":"kartykrupiera", "gracz":"kartygracza"}[kto]).children[reka].appendChild(par);
 	wydanekarty[kto][reka][wydanekarty[kto][reka].length] = {"waga":wybrana.waga, "kolor":wybrana.kolor};
+	setTimeout(() => {
+		par.classList.remove("spadanie");
+	}, 200);
 }
 
 function tasujKarty() {
@@ -90,12 +93,15 @@ function odkryjKarty() {
 	for (let i = 1; i <= wydanekarty.krupier[0].length; i++) {
 		let t = document.getElementById("kartykrupiera").children[0].children[i];
 		if (t.classList.contains("zakr")) {
-			t.classList.remove("zakr");
-			t.appendChild(document.createTextNode(["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"][wydanekarty.krupier[0][i-1].waga]));
-			t.appendChild(document.createElement("br"));
-			if (wydanekarty.krupier[0][i-1].kolor % 2)
-				t.style.color = "Red";
-			t.appendChild(document.createTextNode(["♠", "♥", "♣", "♦"][wydanekarty["krupier"][0][i-1].kolor]));
+			t.classList.add("obrot");
+			setTimeout(() => {
+				t.classList.remove("zakr");
+				t.appendChild(document.createTextNode(["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"][wydanekarty.krupier[0][i-1].waga]));
+				t.appendChild(document.createElement("br"));
+				if (wydanekarty.krupier[0][i-1].kolor % 2)
+					t.style.color = "Red";
+				t.appendChild(document.createTextNode(["♠", "♥", "♣", "♦"][wydanekarty["krupier"][0][i-1].kolor]));
+			}, 250);
 		}
 	}
 }
@@ -131,10 +137,14 @@ function graHit() {
 		graStand();
 }
 
-function graStand() {
+async function graStand() {
 	if (aktualna === wydanekarty.gracz.length - 1) {
-		while (wartoscKart("krupier", 0) <= 16)
+		while (wartoscKart("krupier", 0) <= 16) {
+			odkryjKarty();
+			await czekaj(0.5);
 			dajKarte("krupier", true, 0);
+			await czekaj(0.2);
+		}
 		odkryjKarty();
 		caches["wk"] = wartoscKart("krupier", 0);
 		for (let i = 0; i < stawka.length; i++) {
@@ -164,11 +174,17 @@ function graStand() {
 			muzyka("s");
 		else
 			muzyka("f");
+		if (!stankonta)
+			setTimeout(() => muzyka("r"), 7704);
 		koniec();
 	} else {
 		document.getElementById("kartygracza").children[aktualna].children[0].textContent = "";
+		document.getElementById("kartygracza").children[aktualna].children[0].id = "";
+		document.getElementById("kartygracza").children[aktualna].children[0].classList.remove("wskaznik");
 		aktualna++;
 		document.getElementById("kartygracza").children[aktualna].children[0].textContent = "►";
+		document.getElementById("kartygracza").children[aktualna].children[0].id = "wskaznik";
+		document.getElementById("kartygracza").children[aktualna].children[0].classList.add("wskaznik");
 		sprawdzPrzyciski();
 	}
 }
@@ -186,6 +202,10 @@ function graDoubleDown() {
 }
 
 function graInsurance() {
+	if (stankonta < stawka[aktualna] / 2) {
+		alert("Masz za mało pieniędzy!");
+		return;
+	}
 	if (10 <= wydanekarty.krupier[0][1].waga && wydanekarty.krupier[0][1].waga <= 12) {
 		stankonta += stawka[aktualna];
 		stawka[aktualna] = 0;
@@ -231,14 +251,17 @@ function postaw() {
 	nowaGra();
 }
 
-function nowaGra() {
+async function nowaGra() {
 	dialog.textContent = "";
 	wydanekarty = {"krupier": [[]], "gracz": [[]]};
-	document.getElementById("kartykrupiera").innerHTML = "<tr><td></td></tr>";
-	document.getElementById("kartygracza").innerHTML = "<tr><td id=\"wskaznik\">►</td></tr>";
+	document.getElementById("kartykrupiera").innerHTML = "<tr><td class=\"wskaznik\"></td></tr>";
+	document.getElementById("kartygracza").innerHTML = "<tr><td class=\"wskaznik\" id=\"wskaznik\">►</td></tr>";
 	dajKarte("krupier", false, 0);
+	await czekaj(0.2);
 	dajKarte("gracz", false, 0);
+	await czekaj(0.2);
 	dajKarte("krupier", true, 0);
+	await czekaj(0.2);
 	dajKarte("gracz", false, 0);
 	document.getElementById("hitbutton").removeAttribute("disabled");
 	document.getElementById("standbutton").removeAttribute("disabled");
@@ -291,8 +314,12 @@ function sprawdzPrzyciski() {
  * @param n : string - Utwór muzyczny. "v" - Victory, "f" - Fail, "s" - Stalemate, "mgs" - Metal Gear Solid
  */
 function muzyka(n) {
-	let h = {v: "victory", s: "stalemate", f: "fail", mgs: "mgs"}[n];
+	let h = {v: "victory", s: "stalemate", f: "fail", mgs: "mgs", r: "rip"}[n];
 	document.getElementById("muzyka").setAttribute("src", "music/" + h + ".mp3");
+}
+
+async function czekaj(czas) {
+	return new Promise(resolve => setTimeout(resolve, czas*1000));
 }
 
 let stankonta = 1000;
@@ -301,4 +328,3 @@ let aktualna = 0;
 let zyskanakasa = 0;
 let dialog = document.getElementById("dialog");
 koniec();
-
